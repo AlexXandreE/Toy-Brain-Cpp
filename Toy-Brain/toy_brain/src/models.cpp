@@ -124,19 +124,7 @@ std::vector<double> NeuralNetwork::train(int epochs, std::vector<std::vector<dou
 
 			} while (layer_iterator < this->layers.end());
 
-			double error = 0;
-
-			for (
-				std::vector<double>::const_iterator target_iterator = expected_outputs.begin(),
-				prediction_iterator = result.begin();
-				prediction_iterator != result.end();
-				target_iterator++,
-				prediction_iterator++
-				) {
-
-				error += *target_iterator - *prediction_iterator;
-
-			}
+			double error = getOutputError(result, expected_outputs);
 
 			current_error += error;
 			last_result = result;
