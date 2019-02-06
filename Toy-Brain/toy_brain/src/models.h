@@ -10,6 +10,7 @@
 #include <optional>
 #include <iostream>
 #include <math.h>
+#include <limits>
 
 
 // TODO: Check if I need to use this
@@ -54,6 +55,24 @@ public:
 	double feed_forward(std::vector<double> inputs);
 
 	friend std::ostream &operator<<(std::ostream &os, const Neuron &m);
+};
+
+class Layer {
+private:
+	std::vector<Neuron> neurons;
+
+public:
+	Layer(int num_neurons, int number_of_inputs, Function activation_function);
+	std::vector<double> feed_forward(std::vector<double> inputs);
+};
+
+class NeuralNetwork {
+private:
+	std::vector<Layer> layers;
+
+public:
+	NeuralNetwork(std::vector<Layer> layers);
+	std::vector<double> NeuralNetwork::train(int epochs, std::vector<std::vector<double>> inputs, std::vector<double> expected_outputs, double learning_rate, double minimum_error);
 };
 
 #endif //  MODELS_H
