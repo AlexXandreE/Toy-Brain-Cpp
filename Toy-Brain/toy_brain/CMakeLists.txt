@@ -7,6 +7,11 @@ add_subdirectory ("src")
 add_subdirectory ("test")
 
 # Add source to this project's executable.
-add_executable (toy_brain "toy_brain.cpp" "toy_brain.h")
+add_executable (toy_brain 
+	"toy_brain_main.cpp" 
+	"toy_brain_main.h"
+	"src/models.cpp"
+	"src/models.h"
+)
 
 # TODO: Add tests and install targets if needed.
