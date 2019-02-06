@@ -6,4 +6,4 @@ cmake_minimum_required (VERSION 3.8)
 project ("Toy-Brain")
 
 # Include sub-projects.
-add_subdirectory ("toy-brain")
+add_subdirectory ("toy_brain")

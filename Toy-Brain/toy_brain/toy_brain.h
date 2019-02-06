@@ -1,4 +1,4 @@
-﻿// toy-brain.h : Include file for standard system include files,
+﻿// toy_brain.h : Include file for standard system include files,
 // or project specific include files.
 
 #pragma once
