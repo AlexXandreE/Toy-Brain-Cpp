@@ -11,7 +11,7 @@
 #include <iostream>
 #include <math.h>
 #include <limits>
-
+#include <cmath>
 
 // TODO: Check if I need to use this
 /*
@@ -30,7 +30,17 @@ public:
 enum Function {
 	sigmoid,
 	step,
-	rectifier
+	rectifier,
+	least_mean_square
+};
+
+class ErrorFunction {
+private:
+	Function function;
+public:
+	ErrorFunction();
+	ErrorFunction(Function type);
+	double compute(double value);
 };
 
 class ActivationFunction {
@@ -39,7 +49,7 @@ private:
 public: 
 	ActivationFunction();
 	ActivationFunction(Function type);
-	double calculate(double value);
+	double compute(double value);
 };
 
 class Neuron {
@@ -50,29 +60,40 @@ private:
 
 public:
 	Neuron(int number_of_inputs, Function activation_function); //, RandomGenerator randomHandler);
-	~Neuron();
 
 	double feed_forward(std::vector<double> inputs);
+
+	void updateWeights(double delta_error, double learning_rate, std::vector<double> inputs);
 
 	friend std::ostream &operator<<(std::ostream &os, const Neuron &m);
 };
 
+/**
+ * Layer class implementation
+ */
 class Layer {
 private:
 	std::vector<Neuron> neurons;
+	Function activation_function;
 
 public:
 	Layer(int num_neurons, int number_of_inputs, Function activation_function);
 	std::vector<double> feed_forward(std::vector<double> inputs);
+	Function getErrorFunction() { return this->activation_function; };
+	std::vector<Neuron> getMembers() { return this->neurons; };
 };
 
+/**
+ * Neural Network class implementation
+ */
 class NeuralNetwork {
 private:
 	std::vector<Layer> layers;
 
 public:
 	NeuralNetwork(std::vector<Layer> layers);
-	std::vector<double> NeuralNetwork::train(int epochs, std::vector<std::vector<double>> inputs, std::vector<double> expected_outputs, double learning_rate, double minimum_error);
+	void NeuralNetwork::train(int epochs, std::vector<std::vector<double>> inputs, std::vector<std::vector<double>> expected_outputs, double learning_rate, double minimum_error);
+	std::vector<std::vector<double>> compute(std::vector<std::vector<double>> inputs);
 };
 
 #endif //  MODELS_H

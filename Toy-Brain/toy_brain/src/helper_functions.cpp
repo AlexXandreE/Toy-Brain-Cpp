@@ -1,15 +1,16 @@
 
 #include "helper_functions.h"
 
-double getOutputError(std::vector<double> output, std::vector<double> target) {
+double computeError(std::vector<double> output, std::vector<double> target) {
 
-	std::vector<double>::const_iterator target_iterator = target.begin(), prediction_iterator = result.begin();
+	std::vector<double>::const_iterator target_iterator = target.begin(), prediction_iterator = output.begin();
+	double error = 0;
 
-	while (prediction_iterator != result.end()) {
+	while (prediction_iterator != output.end()) {
 		error += *target_iterator - *prediction_iterator;
 
-		target_iterator++,
-			prediction_iterator++
+		target_iterator++;
+		prediction_iterator++;
 	}
 
 	return error;

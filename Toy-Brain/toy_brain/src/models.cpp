@@ -1,5 +1,6 @@
 
 #include "models.h"
+#include "helper_functions.h"
 
 /*
 RandomGenerator::RandomGenerator(int seed) {
@@ -18,6 +19,10 @@ double RandomGenerator::generateRandomDoubleNumber(double lowerBound, double upp
 		- Expects the input of type Function 
 		- calculate() function retrieves the function result
 */
+
+/**
+ * Activation function class implementation
+ */
 ActivationFunction::ActivationFunction() {
 	this->function = Function::sigmoid;
 }
@@ -26,14 +31,14 @@ ActivationFunction::ActivationFunction(Function type) {
 	this->function = type;
 }
 
-double ActivationFunction::calculate(double value) {
+double ActivationFunction::compute(double value) {
 	switch (this->function)
 	{
 	case sigmoid:
 		return 1 / (1 + exp(value));
 
 	case step:
-		return -1;
+		return value > 0 ? 1 : 0;
 	
 	case rectifier:
 		return value < 0 ? 0 : value;
@@ -41,7 +46,8 @@ double ActivationFunction::calculate(double value) {
 		return 0;
 	}
 }
-
+/* Neuron */
+// Class implementation
 Neuron::Neuron(int number_of_inputs, Function activation_function) {
 	if (number_of_inputs <= 0) {
 		// TODO: Throw error
@@ -62,10 +68,6 @@ Neuron::Neuron(int number_of_inputs, Function activation_function) {
 	this->function = ActivationFunction(activation_function);
 }
 
-Neuron::~Neuron() {
-	//delete(this->weights);
-}
-
 double Neuron::feed_forward(std::vector<double> inputs) {
 	if (inputs.size() != this->weights.size()) {
 		std::cout << "Throw error -> Inputs are different than weights length" << std::endl;
@@ -76,7 +78,13 @@ double Neuron::feed_forward(std::vector<double> inputs) {
 		total += inputs[i] * this->weights[i] + this->bias;
 	}
 
-	return this->function.calculate(total);
+	return this->function.compute(total);
+}
+
+void Neuron::updateWeights(double delta_error, double learning_rate, std::vector<double> inputs) {
+	for (size_t i = 0; i < this->weights.size(); i++) {
+		this->weights[i] = this->weights[i] + (learning_rate * delta_error) * inputs[i];
+	}
 }
 
 // Operator '<<' override to print 
@@ -84,11 +92,13 @@ std::ostream &operator<<(std::ostream &os, Neuron const &m) {
 	return os << "[Neuron] {\n\tweights -> " << m.weights[0] << ",\n\tBias -> " << m.bias << "\n}";
 }
 
-
+/* Layer */
+// Class implementation
 Layer::Layer(int num_neurons, int number_of_inputs, Function activation_function) {
 	for (int i = 0; i < num_neurons; i++) {
 		this->neurons.push_back(Neuron(number_of_inputs, activation_function));
 	}
+	this->activation_function = activation_function;
 }
 
 std::vector<double> Layer::feed_forward(std::vector<double> inputs) {
@@ -100,40 +110,104 @@ std::vector<double> Layer::feed_forward(std::vector<double> inputs) {
 	return outputs;
 }
 
+/* NEURAL NETWORK */
+// Class implementation
 NeuralNetwork::NeuralNetwork(std::vector<Layer> layers) {
 	this->layers = layers;
 }
 
-std::vector<double> NeuralNetwork::train(int epochs, std::vector<std::vector<double>> inputs, std::vector<double> expected_outputs, double learning_rate, double minimum_error) {
+void NeuralNetwork::train(int epochs, std::vector<std::vector<double>> inputs, std::vector<std::vector<double>> expected_outputs, double learning_rate, double minimum_error) {
 	int total_epochs_done = 0;
 	double current_error = DBL_MAX;
-	std::vector<double> last_result;
+
 	std::cout << "Started training" << std::endl;
 	
 	while(total_epochs_done < epochs || current_error < minimum_error) {
-		
+		int current_result_index = 0;
+
 		for (std::vector<double> input : inputs) {
 
 			std::vector<Layer>::iterator layer_iterator = this->layers.begin();
 
 			std::vector<double> result = input;
-
+			std::vector<std::vector<double>> results_per_layer;
 			do {
 				result = layer_iterator->feed_forward(result);
+				results_per_layer.push_back(result);
 				layer_iterator++;
 
-			} while (layer_iterator < this->layers.end());
+			} while (layer_iterator < this->layers.end());		
 
-			double error = getOutputError(result, expected_outputs);
+			//double error = computeError(result, expected_outputs);
 
-			current_error += error;
-			last_result = result;
+			bool changes = false;
+
+			for (size_t index = 0; index < result.size(); index++) {
+				if (std::round(result[index]) != expected_outputs[current_result_index][index]) {
+					changes = true;
+					break;
+				}
+			}
+
+			if (changes) {
+				/**
+				* Back propagation
+				*/
+
+				// last layer
+				std::vector<Neuron> neurons = this->layers[this->layers.size() - 1].getMembers();
+
+				for (size_t index = 0; index < neurons.size() - 1; index++) {
+					double delta_error = (expected_outputs[current_result_index][index] - result[index]) *  result[index] * (1 - result[index]);
+
+					neurons[index].updateWeights(delta_error, learning_rate, result);
+				}
+
+
+				for (size_t layer_index = this->layers.size() - 2; layer_index > 1; layer_index--) {
+					std::vector<Neuron> neurons = this->layers[layer_index].getMembers();
+
+					for (size_t index = 0; index < neurons.size(); index++) {
+						double delta_error = results_per_layer[layer_index][index] * (1 - results_per_layer[layer_index][index]);
+						//double delta_error = (expected_outputs[current_result_index][index] - result[index]) *  result[index] * (1 - result[index]);
+
+						neurons[index].updateWeights(delta_error, learning_rate, results_per_layer[layer_index - 1]);
+					}
+				}
+
+				// updating first layer weights
+				std::vector<Neuron> first_layer_neurons = this->layers[0].getMembers();
+
+				for (size_t index = 0; index < first_layer_neurons.size() - 1; index++) {
+					double delta_error = (expected_outputs[current_result_index][index] - result[index]) *  result[index] * (1 - result[index]);
+
+					first_layer_neurons[index].updateWeights(delta_error, learning_rate, input);
+				}
+			}
+			
+			
+			current_result_index++;
 		}
 		total_epochs_done++;
 		std::cout << "In epoch: " << total_epochs_done << std::endl;
 	}
+}
 
-	return last_result;
+std::vector<std::vector<double>> NeuralNetwork::compute(std::vector<std::vector<double>> inputs) {
+	std::vector<std::vector<double>> results;
+	for (std::vector<double> input : inputs) {
+		std::vector<Layer>::iterator layer_iterator = this->layers.begin();
+
+		std::vector<double> result = input;
+		do {
+			result = layer_iterator->feed_forward(result);
+			layer_iterator++;
+		} while (layer_iterator < this->layers.end());
+		
+		results.push_back(result);
+	}
+
+	return results;
 }
 
 

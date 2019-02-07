@@ -14,10 +14,10 @@ int main()
 	std::vector<Layer> layers;
 	Layer firstLayer(2, 2, Function::sigmoid);
 	layers.push_back(firstLayer);
-	Layer secondLayer(4, 2, Function::sigmoid);
+	Layer secondLayer(1, 2, Function::sigmoid);
 	layers.push_back(secondLayer);
-	Layer thirdLayer(1, 4, Function::sigmoid);
-	layers.push_back(thirdLayer);
+	//Layer thirdLayer(1, 2, Function::sigmoid);
+	//layers.push_back(thirdLayer);
 	// TODO: Or operation test
 	
 	std::vector<std::vector<double>> inputs;
@@ -31,17 +31,31 @@ int main()
 	std::vector<double> fourthInput = { 0, 0 };
 	inputs.push_back(fourthInput);
 	//cout << first << endl;
+
+
 	//std::vector<double> output = singleLayer.feed_forward(inputs);
 	
-	std::vector<double> outputs = { 1, 1, 1, 0 };
+	std::vector<std::vector<double>> outputs;
+	std::vector<double> result1 = { 1 };
+	std::vector<double> result2 = { 1 };
+	std::vector<double> result3 = { 1 };
+	std::vector<double> result4 = { 0 };
+
+	outputs.push_back(result1);
+	outputs.push_back(result2);
+	outputs.push_back(result3);
+	outputs.push_back(result4);
 
 	NeuralNetwork network(layers);
 
 	
-	std::vector<double> output = network.train(10, inputs, outputs, 0.1, 0.1);
+	network.train(50, inputs, outputs, 0.1, 0.1);
 	
-	for (double value : output) {
-		cout << "Feed foward result: " << value << endl;
+	std::vector<std::vector<double>> results = network.compute(inputs);
+
+	std::cout << "OR Function:" << std::endl;
+	for (std::vector<double> value : results) {
+		std::cout << "=> [" << value[0] << "]" << std::endl;
 	}
 	system("pause");
 

@@ -12,6 +12,9 @@ add_executable (toy_brain
 	"toy_brain_main.h"
 	"src/models.cpp"
 	"src/models.h"
+	"src/helper_functions.h"
+	"src/helper_functions.cpp"
+	
 )
 
 # TODO: Add tests and install targets if needed.
