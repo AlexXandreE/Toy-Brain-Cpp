@@ -14,10 +14,10 @@ int main()
 	std::vector<Layer> layers;
 	Layer firstLayer(2, 2, Function::sigmoid);
 	layers.push_back(firstLayer);
-	Layer secondLayer(1, 2, Function::sigmoid);
+	Layer secondLayer(2, 2, Function::sigmoid);
 	layers.push_back(secondLayer);
-	//Layer thirdLayer(1, 2, Function::sigmoid);
-	//layers.push_back(thirdLayer);
+	Layer thirdLayer(1, 2, Function::sigmoid);
+	layers.push_back(thirdLayer);
 	// TODO: Or operation test
 	
 	std::vector<std::vector<double>> inputs;
@@ -49,7 +49,7 @@ int main()
 	NeuralNetwork network(layers);
 
 	
-	network.train(50, inputs, outputs, 0.1, 0.1);
+	network.train(100, inputs, outputs, 0.1, 0.1);
 	
 	std::vector<std::vector<double>> results = network.compute(inputs);
 

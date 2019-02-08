@@ -154,35 +154,60 @@ void NeuralNetwork::train(int epochs, std::vector<std::vector<double>> inputs, s
 				* Back propagation
 				*/
 
+				std::vector<std::vector<double>> deltas;
+
+				// Delta errors computation
+
+				std::vector<double> layer_error;
 				// last layer
 				std::vector<Neuron> neurons = this->layers[this->layers.size() - 1].getMembers();
-
 				for (size_t index = 0; index < neurons.size() - 1; index++) {
 					double delta_error = (expected_outputs[current_result_index][index] - result[index]) *  result[index] * (1 - result[index]);
-
-					neurons[index].updateWeights(delta_error, learning_rate, result);
+					layer_error.push_back(delta_error);
 				}
-
 
 				for (size_t layer_index = this->layers.size() - 2; layer_index > 1; layer_index--) {
 					std::vector<Neuron> neurons = this->layers[layer_index].getMembers();
+					std::vector<double> hidden_layers_error = layer_error;
+					layer_error.clear();
 
-					for (size_t index = 0; index < neurons.size(); index++) {
+
+					for (size_t index = 0; index < neurons.size() - 1; index++) {
 						double delta_error = results_per_layer[layer_index][index] * (1 - results_per_layer[layer_index][index]);
-						//double delta_error = (expected_outputs[current_result_index][index] - result[index]) *  result[index] * (1 - result[index]);
 
+						double sum = 0;
+
+						for (double weight : neurons[index].weights) {
+							sum += weight * hidden_layers_error[index];
+						}
+
+						delta_error *= sum;
 						neurons[index].updateWeights(delta_error, learning_rate, results_per_layer[layer_index - 1]);
-					}
+						
+						layer_error.push_back(delta_error);
+					}	
 				}
 
 				// updating first layer weights
 				std::vector<Neuron> first_layer_neurons = this->layers[0].getMembers();
-
+				std::vector<double> first_layer_error;
 				for (size_t index = 0; index < first_layer_neurons.size() - 1; index++) {
-					double delta_error = (expected_outputs[current_result_index][index] - result[index]) *  result[index] * (1 - result[index]);
-
+					double delta_error = results_per_layer[0][index] * (1 - results_per_layer[0][index]);
+					//first_layer_error.push_back(delta_error);
 					first_layer_neurons[index].updateWeights(delta_error, learning_rate, input);
 				}
+				//deltas.push_back(first_layer_error);
+
+				/*
+				// Updating all layers
+				for (size_t layer_index = this->layers.size() - 1; layer_index > 1; layer_index--) {
+					std::vector<Neuron> neurons = this->layers[layer_index].getMembers();
+
+					for (size_t index = 0; index < first_layer_neurons.size() - 1; index++) {
+						neurons[index].updateWeights(deltas[layer_index][index], learning_rate, results_per_layer[layer_index -1]);
+					}
+				}
+				*/
 			}
 			
 			

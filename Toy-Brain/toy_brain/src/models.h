@@ -54,11 +54,12 @@ public:
 
 class Neuron {
 private:
-	std::vector<double> weights;
 	double bias = -1;
 	ActivationFunction function;
 
 public:
+	std::vector<double> weights;
+
 	Neuron(int number_of_inputs, Function activation_function); //, RandomGenerator randomHandler);
 
 	double feed_forward(std::vector<double> inputs);
