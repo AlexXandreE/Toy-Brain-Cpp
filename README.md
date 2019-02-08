@@ -1,2 +1,2 @@
 # Toy-Brain-Cpp
-C++ Machine Learning library, intended only for learning c++ and AI 
+C++ Machine Learning library, intended only for learning AI 
