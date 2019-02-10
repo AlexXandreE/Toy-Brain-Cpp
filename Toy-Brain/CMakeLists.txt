@@ -8,7 +8,7 @@ if(UNIX OR APPLE)
     message(FATAL_ERROR "Project not yet compatible with non-windows systems")
 endif()
 
-project ("Toy-Brain")
+#project ("Toy-Brain")
 
 # Include sub-projects.
 add_subdirectory ("toy_brain")

@@ -27,73 +27,79 @@ public:
 };
 */
 
-enum Function {
-	sigmoid,
-	step,
-	rectifier,
-	least_mean_square
-};
+namespace ToyBrain {
 
-class ErrorFunction {
-private:
-	Function function;
-public:
-	ErrorFunction();
-	ErrorFunction(Function type);
-	double compute(double value);
-};
+	enum Function {
+		sigmoid,
+		step,
+		rectifier,
+		least_mean_square
+	};
 
-class ActivationFunction {
-private:
-	Function function;
-public: 
-	ActivationFunction();
-	ActivationFunction(Function type);
-	double compute(double value);
-};
+	class ErrorFunction {
+	private:
+		Function function;
+	public:
+		ErrorFunction();
+		ErrorFunction(Function type);
+		double compute(double value);
+	};
 
-class Neuron {
-private:
-	std::vector<double> weights;
-	double bias = -1;
-	ActivationFunction function;
+	class ActivationFunction {
+	private:
+		Function function;
+	public:
+		ActivationFunction();
+		ActivationFunction(Function type);
+		double compute(double value);
+	};
 
-public:
-	Neuron(int number_of_inputs, Function activation_function); //, RandomGenerator randomHandler);
+	class Neuron {
+	private:
+		std::vector<double> weights;
+		double bias = -1;
+		ActivationFunction function;
 
-	double feed_forward(std::vector<double> inputs);
+	public:
+		Neuron(int number_of_inputs, Function activation_function); //, RandomGenerator randomHandler);
 
-	void updateWeights(double delta_error, double learning_rate, std::vector<double> inputs);
+		double feed_forward(std::vector<double> inputs);
 
-	friend std::ostream &operator<<(std::ostream &os, const Neuron &m);
-};
+		void updateWeights(double delta_error, double learning_rate, std::vector<double> inputs);
 
-/**
- * Layer class implementation
- */
-class Layer {
-private:
-	std::vector<Neuron> neurons;
-	Function activation_function;
+		std::vector<double> getWeights() { return this->weights; }
 
-public:
-	Layer(int num_neurons, int number_of_inputs, Function activation_function);
-	std::vector<double> feed_forward(std::vector<double> inputs);
-	Function getErrorFunction() { return this->activation_function; };
-	std::vector<Neuron> getMembers() { return this->neurons; };
-};
+		friend std::ostream &operator<<(std::ostream &os, const Neuron &m);
+	};
 
-/**
- * Neural Network class implementation
- */
-class NeuralNetwork {
-private:
-	std::vector<Layer> layers;
+	/**
+	 * Layer class implementation
+	 */
+	class Layer {
+	private:
+		std::vector<Neuron> neurons;
+		Function activation_function;
 
-public:
-	NeuralNetwork(std::vector<Layer> layers);
-	void NeuralNetwork::train(int epochs, std::vector<std::vector<double>> inputs, std::vector<std::vector<double>> expected_outputs, double learning_rate, double minimum_error);
-	std::vector<std::vector<double>> compute(std::vector<std::vector<double>> inputs);
-};
+	public:
+		Layer(int num_neurons, int number_of_inputs, Function activation_function);
+		std::vector<double> feed_forward(std::vector<double> inputs);
+		Function getErrorFunction() { return this->activation_function; };
+		std::vector<Neuron> getMembers() { return this->neurons; };
+	};
+
+	/**
+	 * Neural Network class implementation
+	 */
+	class NeuralNetwork {
+	private:
+		std::vector<Layer> layers;
+		void NeuralNetwork::backpropagation(std::vector<double> inputs, std::vector<double> expected_outputs, std::vector<std::vector<double>> results_per_layer, std::vector<std::vector<double>> errors_per_layer, double learning_rate);
+
+	public:
+		NeuralNetwork(std::vector<Layer> layers);
+		void NeuralNetwork::train(int epochs, std::vector<std::vector<double>> inputs, std::vector<std::vector<double>> expected_outputs, double learning_rate, double minimum_error);
+		std::vector<std::vector<double>> compute(std::vector<std::vector<double>> inputs);
+	};
+}
 
 #endif //  MODELS_H
