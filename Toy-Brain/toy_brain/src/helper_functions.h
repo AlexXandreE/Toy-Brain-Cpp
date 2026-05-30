@@ -1,10 +1,8 @@
-#pragma once
-
 #ifndef HELPER_FUNCTIONS_H
-#define HELPER_FUCNTIONS_H
+#define HELPER_FUNCTIONS_H
 
-#include <vector>
+#include <span>
 
-double computeError(std::vector<double> output, std::vector<double> target);
+double computeError(std::span<double> output, std::span<double> target);
 
 #endif // !HELPER_FUNCTIONS_H

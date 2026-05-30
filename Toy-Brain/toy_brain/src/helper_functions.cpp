@@ -1,9 +1,10 @@
 
 #include "helper_functions.h"
 
-double computeError(std::vector<double> output, std::vector<double> target) {
+double computeError(std::span<double> output, std::span<double> target) {
 
-	std::vector<double>::const_iterator target_iterator = target.begin(), prediction_iterator = output.begin();
+	std::span<double>::const_iterator target_iterator = target.begin();
+	std::span<double>::const_iterator prediction_iterator = output.begin();
 	double error = 0;
 
 	while (prediction_iterator != output.end()) {

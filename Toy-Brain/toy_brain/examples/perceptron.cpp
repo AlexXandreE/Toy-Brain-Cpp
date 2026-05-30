@@ -1,6 +1,6 @@
 ﻿
 #include <iostream>
-#include "..\src\models.h"
+#include "../src/models.h"
 
 using namespace std;
 using namespace ToyBrain;
@@ -31,7 +31,7 @@ int main()
 	targets.push_back(result4);
 	//
 
-	int num_epochs = 10;
+	int num_epochs = 5;
 	double target_error = 0.1;
 	double learning_rate = 1.0;
 	bool done = false;
@@ -54,8 +54,18 @@ int main()
 		}
 	}
 
-	std::cout << "Success" << std::endl;
-	system("pause");
+	std::cout << (done ? "Success" : "Failure") << std::endl;
+
+	std::cout << "Predictions after training:" << std::endl;
+	for (size_t input_index = 0; input_index < inputs.size(); input_index++) {
+		double output = percetron.feed_forward(inputs[input_index]);
+		std::cout
+			<< "[" << inputs[input_index][0] << ", " << inputs[input_index][1] << "]"
+			<< " -> " << output
+			<< " (rounded: " << round(output) << ")"
+			<< " target: " << targets[input_index][0]
+			<< std::endl;
+	}
 
 	return 0;
 }
